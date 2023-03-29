@@ -5,12 +5,11 @@ def create_app():
     app = Flask(__name__)
     # app.config.from_pyfile("config.py", silent=True)
     app.config.from_mapping(
-        SECRET_KEY="dev",
         DB_USER="root",
         DB_PASS="root",
         DB_HOST="localhost",
         DB_PORT="3306",
-        DB_NAME="mydb"
+        DB_NAME="blog"
     )
     import dbmanager
     app.register_blueprint(dbmanager.bp)
