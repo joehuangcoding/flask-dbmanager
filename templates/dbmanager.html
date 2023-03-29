@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}
+-- Database information --
+{% endblock %}
+{% block subtitle %}
+    Hello :)
+{% endblock %}
+{% block content %}
+<!-- <form class="row col-lg-10  p-3 g-3" action="{{url_for('dbmanager.dbupdate')}}" method="post"> -->
+<form id="form-1" class="row col-lg-10  p-3 g-3">
+{% for table in table_list %}
+{% set table_loop = loop.index %}
+<table class="table table-striped table-hover table-bordered align-middle">
+    <thead class="text-center">
+        <tr>
+        {% for col in table.column_names%}
+        <th>{{col}}</th>
+        {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody class="text-center">
+        {% for result in table.data %}
+        {% set row_loop = loop.index %}
+        <tr>
+            {% for cell in result%}
+                <td>
+                    <input class="form-input" type="text" name="{{ table.column_names[loop.index-1] }}-{{table_names[table_loop-1][0]}}-{{table.column_names[0]}}-{{result[0]}}" value="{{ cell }}">
+                </td>
+            {% endfor%}  
+        </tr>
+        {% endfor %}  
+    </tbody>
+</table>
+{% endfor %}
+</form>
+
+<form id="form-original" class="row col-lg-10  p-3 g-3">
+    {% for table in table_list %}
+    {% set table_loop_o = loop.index %}
+        <tbody class="text-center">
+            {% for result in table.data %}
+            {% set row_loop_o = loop.index %}
+                {% for cell in result%}
+                        <input class="form-input" type="hidden" name="{{ table.column_names[loop.index-1] }}-{{table_names[table_loop_o-1][0]}}-{{table.column_names[0]}}-{{result[0]}}" value="{{ cell }}">
+                {% endfor%}  
+            {% endfor %}  
+    {% endfor %}
+</form>
+
+
+<button id="submit">Submit</button>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  
+<script>
+    $(function() {
+      $('#submit').click(function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        var formData = $('#form-1').serializeArray().reduce(function(obj, item) {
+          obj[item.name] = item.value;
+          return obj;
+        }, {});
+        var formDataOld = $('#form-original').serializeArray().reduce(function(obj, item) {
+            obj[item.name] = item.value;
+            return obj;
+          }, {});
+        let diff = [];
+        for( const key in formData) {
+            if(formData[key] != formDataOld[key]) {
+                diff.push({"key": key, new: formData[key], old: formDataOld[key]})
+            }
+        }
+        console.log(diff);
+        json = JSON.stringify(diff)
+        //Send the JSON data to the server using an AJAX call
+        $.ajax({
+          url: "{{ url_for('dbmanager.dbupdate')}}",
+          type: 'POST',
+          data: json,
+          contentType: 'application/json',
+          success: function(response) {
+            console.log(response);
+            location.reload();
+          },
+          error: function(error) {
+            console.log(error);
+          }
+        });
+      });
+    });
+  </script>
+{% endblock %}
