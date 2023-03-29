@@ -4,3 +4,5 @@
 * List all the tables in html
 * Input field for all the columns
 * Update exsiting data
+
+![alt text](/db-manager.JPG)
