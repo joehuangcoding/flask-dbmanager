@@ -1,4 +1,4 @@
-# A simple page for updating Mysql in Pythonanywhere
+# A single page db manager for updating Mysql in Pythonanywhere
 
 ## Functions
 * List all the tables in html
