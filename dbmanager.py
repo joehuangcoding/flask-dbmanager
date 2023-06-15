@@ -4,24 +4,29 @@ from flask import render_template
 from flask import request
 from flask import url_for
 from db import get_db
+from datetime import datetime
 
-bp = Blueprint("dbmanager", __name__, url_prefix="/")
+bp = Blueprint("dbmanager", __name__, url_prefix="/dbmanager")
 
 @bp.route("/", methods = ["GET"])
 def dbmanager():
     table_list = []
+    now = datetime.now()
     db = get_db();
     sql = '''
         show Tables;
         '''
+    nowtime = 'SELECT NOW();'
     db.execute(sql)
     db_result = db.fetchall()
     db_cols = [desc[0] for desc in db.description]
     # table_list.append(Table(db_cols, db_result))
     table_names = db_result
+    db.execute(nowtime)
+    db_result1 = db.fetchall()
     for table_name in db_result:
         table_list.append(get_the_table(table_name[0]))
-    return render_template("dbmanager.html", table_list=table_list, table_names=table_names)
+    return render_template("dbmanager.html", table_list=table_list, table_names=table_names, now=now, db_result1=db_result1)
 
 @bp.route("/", methods = ["POST"])
 def dbupdate():
@@ -53,5 +58,5 @@ def get_the_table(table_name):
 
 def update_the_table(table, column, value, primary_key, primary_key_id): 
     db = get_db()
-    sql = f"""UPDATE {table} SET {column} = '{value}' WHERE {primary_key} = {primary_key_id};"""
+    sql = f"""Update {table} SET {table}.{column} = '{value}' WHERE {primary_key} = {primary_key_id};"""
     db.execute(sql)
